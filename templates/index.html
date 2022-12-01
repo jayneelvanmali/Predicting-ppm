@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>ioe project</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style type="text/css">
+      @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@700&family=Poppins:wght@400;500;600&display=swap');
+      *{
+            font-family: "Poppins", sans-serif;
+
+          box-sizing: border-box;
+        }
+
+      h1{
+        text-align: center;
+  color:  crimson;
+
+  font-size: 40px;
+      }
+
+      a{
+        display: inline-block;
+        text-decoration: none;
+        width: 80px;
+        height: 45px;
+        background-color: lightgreen;
+        color: black;
+        padding: 11px;
+        border: solid black 2px;
+        border-radius:2px ;
+
+        position: absolute;
+        top: 40px;
+        right: 50px;
+
+    }
+
+    p{
+      font-size: 20px;
+      color: steelblue;
+    }
+
+    #temp{
+
+        position: absolute;
+        top: 260px;
+        left: 380px;
+    }
+
+    #label1{
+
+        position: absolute;
+        top: 350px;
+        left: 275px;
+    }
+
+    #hum{
+
+        position: absolute;
+        top: 260px;
+        left: 770px;
+    }
+
+    #label2{
+
+        position: absolute;
+        top: 350px;
+        left: 670px;
+    }
+
+    #air{
+
+        position: absolute;
+        top: 260px;
+        left: 1155px;
+
+    }
+
+    #label3{
+
+        position: absolute;
+        top: 350px;
+        left: 1035px;
+    }
+
+    .para{
+      margin-left:280px ;
+    }
+
+    #viz{
+        position: absolute;
+        top: 400px;
+        width: 100%;
+
+    }
+    iframe{
+      margin: 25px;
+      border-radius: 5px;
+    }
+
+    #predict{
+      position: absolute;
+      top: 725px;
+      left : 30px;
+    }
+    button{
+      width: 80px;
+        height: 45px;
+        background-color: lightgreen;
+        color: black;
+        padding: 11px;
+        border: solid black 2px;
+        border-radius:2px ;
+    }
+
+
+    </style>
+
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript">
+
+    </script>
+
+    <script type="text/javascript">
+              GetData();
+
+        function GetData()
+        {
+            var url = 'https://api.thingspeak.com/channels/1170558/feeds.json?results=1';
+            $.getJSON(url, function(data) {
+
+            console.log(data["feeds"][0]["field1"])
+            console.log(data["feeds"][0]["field2"])
+            console.log(data["feeds"][0]["field3"])
+
+            e1 = document.getElementById("air")
+            e1.innerText=Math.ceil(data["feeds"][0]["field1"])+" ppm"
+
+            e2 = document.getElementById("temp")
+            e2.innerText=Math.ceil(data["feeds"][0]["field2"])+" \u2103"
+
+            e3 = document.getElementById("hum")
+            e3.innerText=Math.ceil(data["feeds"][0]["field3"])+" %"
+
+
+
+            });
+            setTimeout(GetData, 10000);
+        }
+    </script>
+
+
+
+
+
+
+
+
+
+
+  </head>
+  <body>
+    <nav>
+          <h1>Monitor</h1>    
+          <a href="login.html">Logout</a>
+    </nav>
+
+    <div>
+      <p>Welcome {{username}} <br> Our system is monitoring your indoor house enviornment, Below are the calculated results.</p><hr>
+
+      <span class="para"><img src="https://img.icons8.com/fluency/96/000000/temperature.png"/> <span id="temp">70&#8451;</span></span>
+      <span class="para"><img src="https://img.icons8.com/external-justicon-lineal-color-justicon/64/000000/external-humidity-weather-justicon-lineal-color-justicon-1.png"/ style="height:80px"><span id="hum">60%</span></span>
+      <span class="para"><img src="https://img.icons8.com/stickers/100/000000/air-element.png"/><span id="air">300ppm</span></span>
+
+      <br>
+
+      <span id="label1">Temperature</span>
+      <span id="label2">Humidity</span>
+      <span id="label3">Air Quality</span>
+
+
+
+    </div>
+
+    <div id="viz">
+      <hr>
+
+      <iframe width="450" height="260" style="border: 2px solid black;" src="https://thingspeak.com/channels/1170558/charts/2?bgcolor=%23ffffff&color=%23d62020&days=30&dynamic=true&max=50&min=0&results=60&title=Temperature&type=line&yaxis=%C2%B0C"></iframe>
+      <iframe width="450" height="260" style="border: 2px solid black;" src="https://thingspeak.com/channels/1170558/charts/3?bgcolor=%23ffffff&color=%23d62020&days=30&dynamic=true&max=100&min=0&results=60&title=Humidity&type=line&yaxis=%25"></iframe>
+      <iframe width="450" height="260" style="border: 2px solid black;" src="https://thingspeak.com/channels/1170558/charts/1?bgcolor=%23ffffff&color=%23d62020&days=30&dynamic=true&max=750&min=0&results=60&title=Air+Quality&type=line&yaxis=ppm"></iframe>
+
+      <hr>
+
+    </div>
+
+    <div id="predict">
+      <br>
+      <form action="index.html" method="post">
+        <p >Predict air quality for next 30mins</p>
+        <button type="submit">predict</button>
+      </form>
+
+      {% if check %}
+
+      <p>Air Quality predicted is : {{ppm}} ppm</p>
+
+      <br>
+      <canvas id="lineChart" width="900" height="400"> </canvas>
+
+      <script>
+
+      var ctx = document.getElementById("lineChart").getContext("2d");
+
+      var lineChart = new Chart(ctx, {
+
+      type : "line",
+      data : {
+
+      labels : {{labels}},
+
+      datasets : [
+      {
+      label : "ppm",
+      data : {{values}},
+      fill : false,
+      lineTension : 0.1,
+      borderColor : "rgb(75,192,192)"
+
+
+      }
+
+
+    ]
+
+
+
+
+      },
+      options :{
+      responsive : false
+      }
+
+      });
+
+
+      </script>
+
+
+      {% endif %}
+
+      
+    </div>
+
+
+
+
+
+  </body>
+</html>
